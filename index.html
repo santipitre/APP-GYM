@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>💪 GYM APP - Santiago</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#5B4FD9;--primary-dark:#3730A3;--primary-light:#7B70F5;
+  --secondary:#E91E63;--green:#43A047;--orange:#FB8C00;--cyan:#00ACC1;
+  --bg:#F0F2FF;--card:#FFFFFF;--text:#1A1A2E;--muted:#6B7280;--border:#E5E7EB;
+  --upper:#5B4FD9;--lower:#E91E63;--func:#00ACC1;--deload:#FB8C00;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:80px;}
+.app-header{background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 60%,var(--primary-light) 100%);color:#fff;padding:20px 18px 18px;position:sticky;top:0;z-index:50;box-shadow:0 4px 20px rgba(55,48,163,0.4);}
+.app-header h1{font-size:20px;font-weight:800;letter-spacing:-0.3px;}
+.app-header p{font-size:12px;opacity:.85;margin-top:2px;}
+.week-badge{display:inline-block;background:rgba(255,255,255,.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;margin-top:8px;}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;display:flex;border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.1);z-index:100;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10px;font-weight:600;transition:color .2s;gap:3px;}
+.nav-btn.active{color:var(--primary);}
+.nav-btn svg{width:22px;height:22px;}
+.screen{display:none;padding:14px;}
+.screen.active{display:block;}
+.card{background:var(--card);border-radius:16px;padding:15px;margin-bottom:11px;box-shadow:0 2px 10px rgba(0,0,0,.06);}
+.section-title{font-size:17px;font-weight:700;margin-bottom:11px;color:var(--text);}
+.week-tabs{display:flex;gap:7px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.week-tabs::-webkit-scrollbar{display:none;}
+.week-tab{flex-shrink:0;padding:8px 15px;border-radius:20px;border:2px solid var(--border);background:#fff;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.week-tab.active{border-color:var(--primary);background:var(--primary);color:#fff;}
+.day-card{background:#fff;border-radius:16px;padding:15px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.06);cursor:pointer;transition:transform .2s;border-left:5px solid var(--primary);}
+.day-card:active{transform:scale(.98);}
+.day-card.upper{border-left-color:var(--upper);}
+.day-card.lower{border-left-color:var(--lower);}
+.day-card.functional{border-left-color:var(--func);}
+.day-card.deload{border-left-color:var(--deload);}
+.day-card-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.day-card-title{font-size:16px;font-weight:700;}
+.day-card-sub{font-size:13px;color:var(--muted);margin-top:3px;}
+.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
+.badge-upper{background:#EDE9FF;color:var(--upper);}
+.badge-lower{background:#FCE4EC;color:var(--lower);}
+.badge-func{background:#E0F7FA;color:var(--func);}
+.badge-deload{background:#FFF3E0;color:var(--deload);}
+.day-meta{display:flex;gap:12px;margin-top:10px;}
+.day-meta span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+
+/* === SUPERSETS === */
+.superset-block{background:#fff;border-radius:18px;padding:14px;margin-bottom:14px;box-shadow:0 3px 14px rgba(0,0,0,.08);}
+.superset-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.superset-label-line{flex:1;height:2px;background:linear-gradient(90deg,var(--primary),transparent);border-radius:1px;}
+.superset-ex{padding:10px;border-radius:12px;background:var(--bg);margin-bottom:8px;cursor:pointer;transition:background .15s;}
+.superset-ex:active{background:#DDD9FF;}
+.superset-ex-top{display:flex;align-items:center;gap:10px;}
+.superset-ex-num{width:30px;height:30px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0;}
+.superset-ex-num.leg{background:var(--secondary);}
+.superset-ex-info{flex:1;}
+.superset-ex-name{font-size:14px;font-weight:700;line-height:1.3;}
+.superset-ex-meta{font-size:12px;color:var(--muted);margin-top:1px;}
+.superset-ex-name span.leg-tag{font-size:10px;background:#FCE4EC;color:var(--secondary);padding:2px 7px;border-radius:10px;margin-left:5px;font-weight:700;vertical-align:middle;}
+.set-dots{display:flex;gap:7px;padding:8px 0 2px 40px;}
+.set-dot{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--muted);cursor:pointer;transition:all .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.set-dot.done{background:var(--green);border-color:var(--green);color:#fff;}
+.set-dot:active{transform:scale(.88);}
+
+/* === REST + TIMER === */
+.rest-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);}
+.rest-label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+.timer-btn{background:var(--primary);color:#fff;border:none;border-radius:22px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s;-webkit-tap-highlight-color:transparent;}
+.timer-btn:active{background:var(--primary-dark);}
+.global-timer{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:452px;background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;border-radius:18px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 30px rgba(55,48,163,.5);z-index:90;animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+.timer-main{display:flex;flex-direction:column;}
+.timer-count{font-size:36px;font-weight:800;letter-spacing:-1px;line-height:1;}
+.timer-label{font-size:11px;opacity:.8;margin-top:3px;}
+.timer-stop{background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:50%;width:42px;height:42px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.timer-done-msg{font-size:15px;font-weight:700;text-align:center;width:100%;padding:6px 0;}
+
+/* === PROGRESS === */
+.progress-wrap{background:var(--border);border-radius:6px;height:7px;margin-top:10px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:6px;transition:width .4s;}
+.done-bar{background:#F1FFF3;border-radius:10px;padding:10px 13px;margin-bottom:10px;font-size:13px;color:var(--green);font-weight:700;display:flex;align-items:center;gap:7px;}
+
+/* === MODAL === */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end;}
+.overlay.show{display:flex;}
+.modal{background:#fff;border-radius:24px 24px 0 0;padding:22px 18px 36px;width:100%;max-height:92vh;overflow-y:auto;animation:up .28s ease;}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px;}
+.modal-title{font-size:19px;font-weight:800;margin-bottom:4px;}
+.modal-muscles{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 14px;}
+.muscle-tag{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;}
+.modal-section{margin-top:14px;}
+.modal-section h4{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;}
+.modal-section p,.modal-section li{font-size:14px;color:var(--text);line-height:1.6;}
+.modal-section ul{list-style:none;padding:0;}
+.modal-section li{padding:3px 0;display:flex;align-items:flex-start;gap:7px;}
+.modal-section li::before{content:"✓";color:var(--primary);font-weight:700;flex-shrink:0;}
+.mod-box{background:#FFF8F0;border-left:4px solid var(--orange);border-radius:10px;padding:11px;margin-top:12px;font-size:13px;line-height:1.6;}
+.mod-box.good{background:#F1FFF3;border-left-color:var(--green);}
+.sets-row{display:flex;gap:8px;margin:10px 0;}
+.set-box{flex:1;background:var(--bg);border-radius:12px;padding:12px 8px;text-align:center;}
+.set-val{font-size:20px;font-weight:800;color:var(--primary);}
+.set-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+.close-btn{position:absolute;top:14px;right:16px;background:var(--border);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+
+/* === MUSCLE VISUAL === */
+.muscle-visual-wrap{background:var(--bg);border-radius:14px;padding:12px;margin-bottom:14px;}
+.mv-header{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;text-align:center;}
+.mv-body{display:flex;justify-content:center;gap:20px;}
+.mv-diagram{text-align:center;}
+.mv-diagram-label{font-size:10px;color:var(--muted);font-weight:700;margin-top:5px;text-transform:uppercase;}
+.mv-move-type{display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:10px;border:1.5px solid var(--border);}
+.mv-move-icon{font-size:26px;line-height:1;}
+.mv-move-info{flex:1;}
+.mv-move-name{font-size:13px;font-weight:800;color:var(--primary);}
+.mv-move-sub{font-size:11px;color:var(--muted);}
+
+/* === HOME === */
+.home-hero{background:linear-gradient(135deg,var(--primary-dark),var(--primary-light));color:#fff;border-radius:20px;padding:20px;margin-bottom:14px;}
+.home-hero h2{font-size:18px;font-weight:800;margin-bottom:4px;}
+.home-hero p{font-size:13px;opacity:.88;}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.stat{background:#fff;border-radius:14px;padding:13px 8px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06);}
+.stat-n{font-size:22px;font-weight:800;color:var(--primary);}
+.stat-l{font-size:11px;color:var(--muted);margin-top:2px;}
+.tip-box{background:linear-gradient(135deg,#EDE9FF,#F0F4FF);border-radius:14px;padding:14px;margin-bottom:11px;border-left:4px solid var(--primary);}
+.tip-box h4{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:5px;}
+.tip-box p{font-size:13px;color:var(--text);line-height:1.6;}
+.warn-box{background:linear-gradient(135deg,#FFF3E0,#FFF8F0);border-radius:14px;padding:14px;margin-bottom:11px;border-left:4px solid var(--orange);}
+.warn-box h4{font-size:13px;font-weight:700;color:var(--orange);margin-bottom:5px;}
+.warn-box p{font-size:13px;color:var(--text);line-height:1.6;}
+.start-btn{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;box-shadow:0 4px 15px rgba(91,79,217,.4);transition:transform .15s;}
+.start-btn:active{transform:scale(.97);}
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--primary);font-size:14px;font-weight:700;cursor:pointer;padding:0 0 14px;margin-bottom:2px;}
+.week-desc{background:linear-gradient(135deg,#EDE9FF,#F5F3FF);border-radius:12px;padding:12px;margin-bottom:14px;font-size:13px;line-height:1.6;color:var(--text);}
+.week-desc strong{color:var(--primary);}
+
+/* === STRETCH === */
+.cat-filter{display:flex;gap:7px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.cat-filter::-webkit-scrollbar{display:none;}
+.cat-btn{flex-shrink:0;padding:7px 13px;border-radius:20px;border:2px solid var(--border);background:#fff;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.cat-btn.active{border-color:var(--primary);background:var(--primary);color:#fff;}
+.stretch-card{background:#fff;border-radius:16px;padding:15px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.06);}
+.stretch-head{display:flex;align-items:center;gap:11px;margin-bottom:8px;}
+.stretch-icon{width:42px;height:42px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+.stretch-info{flex:1;}
+.stretch-name{font-size:15px;font-weight:700;}
+.stretch-dur{display:inline-block;background:var(--green);color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:3px;}
+.stretch-body{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:6px;}
+.stretch-steps{list-style:none;padding:0;}
+.stretch-steps li{font-size:13px;padding:2px 0;display:flex;gap:7px;}
+.stretch-steps li::before{content:"→";color:var(--primary);}
+.stretch-mod{background:#F1FFF3;border-left:3px solid var(--green);border-radius:8px;padding:8px;margin-top:8px;font-size:12px;line-height:1.5;}
+.stretch-mod.warn{background:#FFF8F0;border-left-color:var(--orange);}
+
+/* === INFO === */
+.info-section{background:#fff;border-radius:16px;padding:16px;margin-bottom:11px;box-shadow:0 2px 10px rgba(0,0,0,.06);}
+.info-section h3{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.info-section p,.info-section li{font-size:13px;color:var(--muted);line-height:1.7;}
+.info-section ul{list-style:none;padding:0;}
+.info-section li{padding:3px 0;display:flex;gap:7px;align-items:flex-start;}
+.info-section li::before{content:"•";color:var(--primary);font-weight:900;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>💪 GYM APP — Santiago</h1>
+  <p>Rutina mensual personalizada · Resistencia &amp; Salud</p>
+  <span class="week-badge" id="hBadge">Semana 1 — Fundamentos</span>
+</header>
+
+<div class="screen active" id="s-home">
+  <div class="home-hero">
+    <h2>¡Hola, Santiago! 🏋️</h2>
+    <p>Tu rutina está adaptada para tu escoliosis y rótula. Cada ejercicio tiene indicaciones especiales.</p>
+  </div>
+  <div class="stats-grid">
+    <div class="stat"><div class="stat-n">4</div><div class="stat-l">Semanas</div></div>
+    <div class="stat"><div class="stat-n">3</div><div class="stat-l">Días/semana</div></div>
+    <div class="stat"><div class="stat-n">50'</div><div class="stat-l">Por sesión</div></div>
+  </div>
+  <div class="tip-box">
+    <h4>💡 Rutinas mixtas combinadas</h4>
+    <p>Los ejercicios ahora se hacen en <b>supersets</b>: alternás entre 2 ejercicios antes de descansar. Tocá ⏱ para activar el cronómetro de descanso.</p>
+  </div>
+  <div class="warn-box">
+    <h4>⚠️ Tus condiciones — leé esto</h4>
+    <p><b>Rótula:</b> ROM limitado a 70-90° en ejercicios de rodilla. Sin impacto ni saltos. Dolor = parar.<br><b>Escoliosis:</b> Movimientos bilaterales y simétricos. Core estable siempre. Espalda neutra.</p>
+  </div>
+  <div class="section-title">Semana actual</div>
+  <div id="homeWeekCards"></div>
+  <button class="start-btn" onclick="showScreen('plan')">Ver Plan Mensual Completo →</button>
+</div>
+
+<div class="screen" id="s-plan">
+  <div class="section-title">Plan Mensual</div>
+  <div class="week-tabs" id="weekTabs"></div>
+  <div id="planWeekDesc"></div>
+  <div id="planDayCards"></div>
+</div>
+
+<div class="screen" id="s-workout">
+  <button class="back-btn" onclick="showScreen('plan')">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    Volver al Plan
+  </button>
+  <div id="workoutContent"></div>
+</div>
+
+<div class="screen" id="s-stretch">
+  <div class="section-title">🧘 Estiramientos Post-Sesión</div>
+  <div class="tip-box" style="margin-bottom:13px;">
+    <h4>⏱ 12–15 minutos</h4>
+    <p>Hacé esta rutina después de CADA entrenamiento. Mejora la recuperación y es muy importante para tus condiciones.</p>
+  </div>
+  <div class="cat-filter" id="stretchCats"></div>
+  <div id="stretchList"></div>
+</div>
+
+<div class="screen" id="s-info">
+  <div class="section-title">ℹ️ Guía &amp; Consejos</div>
+  <div class="info-section">
+    <h3>🏥 Tus condiciones</h3>
+    <ul>
+      <li><b>Escoliosis leve:</b> Priorizá ejercicios bilaterales y simétricos. El core fuerte es clave para estabilizar tu columna.</li>
+      <li><b>Rótula ascendida + cartílago:</b> Jamás más de 90° de flexión de rodilla. Sin impacto. Si duele la rodilla, para.</li>
+      <li><b>El Bird Dog, Dead Bug y Plancha</b> son tus mejores aliados para la columna.</li>
+    </ul>
+  </div>
+  <div class="info-section">
+    <h3>🔀 Cómo funcionan los Supersets</h3>
+    <ul>
+      <li><b>Superset A:</b> Hacés 1 serie del ejercicio 1, luego 1 serie del ejercicio 2, descansás. Repetís 3 veces.</li>
+      <li>Tocá los círculos (○) para marcar cada serie completada. <b>¡Se guardan aunque cierres la app!</b></li>
+      <li>Tocá el botón <b>⏱ Descanso</b> para activar el cronómetro sin salir de la app.</li>
+      <li>Tocá el nombre del ejercicio para ver la descripción e imagen de referencia.</li>
+    </ul>
+  </div>
+  <div class="info-section">
+    <h3>📅 Estructura mensual</h3>
+    <ul>
+      <li><b>Semana 1 — Fundamentos:</b> Aprender la técnica correcta, pesos livianos.</li>
+      <li><b>Semana 2 — Progresión:</b> Nuevos ejercicios, un poco más de carga.</li>
+      <li><b>Semana 3 — Intensificación:</b> Variaciones más desafiantes, mayor volumen.</li>
+      <li><b>Semana 4 — Recuperación (Deload):</b> 60% del peso, técnica pura.</li>
+    </ul>
+  </div>
+  <div class="info-section">
+    <h3>💡 Tips generales</h3>
+    <ul>
+      <li>Calentá siempre 5–8 minutos antes (bicicleta o caminata).</li>
+      <li>Hidratate durante la sesión.</li>
+      <li>El dolor es diferente a la fatiga muscular. Si duele una articulación, para.</li>
+      <li>Dormí bien: es donde ocurre la recuperación real.</li>
+      <li>Proteína post-entreno ayuda a la recuperación muscular.</li>
+    </ul>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    Inicio
+  </button>
+  <button class="nav-btn" id="nav-plan" onclick="showScreen('plan')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+    Plan
+  </button>
+  <button class="nav-btn" id="nav-stretch" onclick="showScreen('stretch')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z"/></svg>
+    Estirar
+  </button>
+  <button class="nav-btn" id="nav-info" onclick="showScreen('info')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+    Info
+  </button>
+</nav>
+
+<!-- GLOBAL TIMER (hidden by default) -->
+<div class="global-timer" id="globalTimer" style="display:none;">
+  <div class="timer-main">
+    <div class="timer-count" id="timerCount">60</div>
+    <div class="timer-label">segundos de descanso</div>
+  </div>
+  <button class="timer-stop" onclick="stopTimer()" title="Cancelar">✕</button>
+</div>
+
+<!-- EXERCISE MODAL -->
+<div class="overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modalBox" style="position:relative;">
+    <div class="modal-handle"></div>
+    <button class="close-btn" onclick="closeModalBtn()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const DATA = {
+  weeks:[
+    {n:1,name:"Semana 1",theme:"Fundamentos",isDeload:false,
+     desc:"Enfocate en <strong>aprender la técnica</strong> correcta de cada ejercicio. Pesos livianos, control total.",
+     days:[
+      {id:"1A",name:"Día A",sub:"Tren Superior + Core + Piernas",type:"upper",dur:"~55 min",
+       exercises:[
+        {name:"Jalón al Pecho",sets:3,reps:"12",rest:"60",muscles:["Dorsal","Bíceps"],
+         desc:"Sentado en la máquina, agarre prono al ancho de los hombros. Jalá la barra hacia el pecho manteniendo el pecho elevado y los codos hacia abajo.",
+         tips:["Mantené el pecho elevado","Evitá balancear el torso hacia atrás","Controlá lentamente la vuelta"],
+         mod:"⚠️ Escoliosis: Espalda en posición neutra. Evitá arquearte excesivamente en la zona lumbar.",modType:"warn",diff:1,isLeg:false},
+        {name:"Press de Pecho en Máquina",sets:3,reps:"12",rest:"60",muscles:["Pectoral","Tríceps","Deltoides anterior"],
+         desc:"Ajustá el asiento para que los mangos queden a la altura del pecho. Empujá hacia adelante de forma controlada sin bloquear los codos.",
+         tips:["No bloquees los codos al extender","Controlá el regreso 2 segundos","Apretá el pecho en la contracción"],
+         mod:null,diff:1,isLeg:false},
+        {name:"Remo en Polea Baja",sets:3,reps:"12",rest:"60",muscles:["Dorsal","Romboides","Bíceps"],
+         desc:"Sentado frente a la polea baja, jalá el cable hacia el abdomen con los codos pegados al cuerpo. Apretá los omóplatos al final.",
+         tips:["Sentate erguido, sin inclinar el torso","Apretá los omóplatos en la contracción","Controlá la vuelta sin soltar"],
+         mod:"⚠️ Escoliosis: Movimiento bilateral y simétrico. Evitá inclinaciones laterales.",modType:"warn",diff:1,isLeg:false},
+        {name:"Elevaciones Laterales",sets:3,reps:"12",rest:"60",muscles:["Deltoides lateral"],
+         desc:"De pie con mancuernas en ambas manos. Levantá los brazos lateralmente hasta la altura del hombro con los codos levemente flexionados.",
+         tips:["Pesos livianos al inicio","No subás por encima de los hombros","Codos levemente flexionados"],
+         mod:"⚠️ Escoliosis: Realizalo con ambos brazos al mismo tiempo para simetría.",modType:"warn",diff:1,isLeg:false},
+        {name:"Curl de Bíceps con Barra",sets:3,reps:"12",rest:"60",muscles:["Bíceps"],
+         desc:"De pie, agarre supino al ancho de los hombros. Flexioná los codos llevando la barra hacia los hombros sin balancear el cuerpo.",
+         tips:["No balancees el cuerpo","Codos fijos a los costados","Controlá lentamente la bajada"],
+         mod:null,diff:1,isLeg:false},
+        {name:"Extensión de Tríceps en Polea",sets:3,reps:"12",rest:"60",muscles:["Tríceps"],
+         desc:"De pie frente a la polea alta, con cuerda o barra. Extendé los codos hacia abajo manteniendo los codos fijos al costado del cuerpo.",
+         tips:["Codos pegados al cuerpo","Extendé completamente abajo","Rango completo de movimiento"],
+         mod:null,diff:1,isLeg:false},
+        {name:"Plancha Frontal",sets:3,reps:"30 seg",rest:"45",muscles:["Core","Transverso","Estabilizadores"],
+         desc:"Apoyado en antebrazos y puntas de pie, manteniendo el cuerpo en línea recta. Sin hundir ni elevar la cadera.",
+         tips:["Columna completamente neutra","Apretá el abdomen fuerte","Respirá normalmente, no retengas el aire"],
+         mod:"✅ Ideal para escoliosis: Fortalece el core de forma segura sin carga en la columna.",modType:"good",diff:1,isLeg:false},
+        {name:"Puente de Glúteos",sets:3,reps:"15",rest:"45",muscles:["Glúteos","Isquiotibiales","Core lumbar"],
+         desc:"Acostado boca arriba, rodillas flexionadas a 90°, pies apoyados. Elevá la cadera apretando fuerte los glúteos. Bajá lentamente.",
+         tips:["Apretá los glúteos fuerte en la cima","Columna neutra, sin hiperextensión lumbar","Mantené 1 segundo arriba"],
+         mod:"✅ EXCELENTE para ambas condiciones: Sin impacto en rodilla y fortalece el core lumbar.",modType:"good",diff:1,isLeg:true}
+       ]},
+      {id:"1B",name:"Día B",sub:"Tren Inferior + Core",type:"lower",dur:"~55 min",
+       exercises:[
+        {name:"Media Sentadilla (Smith Machine)",sets:3,reps:"12",rest:"75",muscles:["Cuádriceps","Glúteos","Core"],
+         desc:"En la máquina Smith con barra guiada, bajá hasta 90° MÁXIMO. Pies al ancho de los hombros, ligeramente hacia afuera.",
+         tips:["NUNCA bajes más de 90° de flexión","Rodillas alineadas con los dedos del pie","Peso distribuido en los talones"],
+         mod:"🦵 Rótula: ROM LIMITADO a 90° máximo. Si sentís molestia en la rodilla, reducí el rango. DOLOR = PARAR.",modType:"warn",diff:1,isLeg:true},
+        {name:"Prensa de Pierna",sets:3,reps:"12",rest:"75",muscles:["Cuádriceps","Glúteos","Isquiotibiales"],
+         desc:"Acostado en la prensa, pies al ancho de los hombros centrados en la plataforma. Bajá hasta 70° de flexión de rodilla MÁXIMO.",
+         tips:["ROM MÁXIMO 70° de flexión","No despegues la espalda baja de la silla","Ambos pies completos en la plataforma"],
+         mod:"🦵 Rótula: ROM ESTRICTAMENTE limitado a 70°. Peso moderado.",modType:"warn",diff:1,isLeg:true},
+        {name:"Puente de Glúteos",sets:3,reps:"15",rest:"60",muscles:["Glúteos","Isquiotibiales","Core lumbar"],
+         desc:"Acostado boca arriba, rodillas flexionadas a 90°, pies apoyados. Elevá la cadera apretando fuerte los glúteos. Bajá lentamente.",
+         tips:["Apretá los glúteos fuerte en la cima","Columna neutra, sin hiperextensión lumbar","Mantené 1 segundo arriba"],
+         mod:"✅ EXCELENTE para ambas condiciones.",modType:"good",diff:1,isLeg:true},
+        {name:"Curl de Isquiotibiales en Máquina",sets:3,reps:"12",rest:"60",muscles:["Isquiotibiales"],
+         desc:"Acostado boca abajo en la máquina de curl, jalá el pad con los talones llevándolos hacia los glúteos de forma controlada.",
+         tips:["Control total en el regreso","Completá el rango de movimiento","Sin balancear las caderas"],
+         mod:"✅ Seguro para la rótula: No genera presión en la articulación patelofemoral.",modType:"good",diff:1,isLeg:true},
+        {name:"Abducción de Cadera en Máquina",sets:3,reps:"15",rest:"45",muscles:["Abductores","Glúteo medio"],
+         desc:"Sentado en la máquina de abducción, separá las piernas contra la resistencia de manera controlada y volvé lentamente.",
+         tips:["Movimiento lento y controlado","Sentate erguido","No uses impulso para separar"],
+         mod:"✅ Sin impacto en rodilla. Fortalece los estabilizadores de cadera.",modType:"good",diff:1,isLeg:true},
+        {name:"Elevación de Pantorrillas de Pie",sets:3,reps:"20",rest:"45",muscles:["Gemelos","Sóleo"],
+         desc:"De pie en el borde de un escalón o plataforma. Subí en puntas de pie y bajá completamente los talones.",
+         tips:["Rango completo: bajá los talones bajo el nivel","Aguantá 1 segundo en la punta","Control en la bajada"],
+         mod:"✅ Sin impacto en la rodilla.",modType:"good",diff:1,isLeg:true},
+        {name:"Dead Bug",sets:3,reps:"8 por lado",rest:"45",muscles:["Core","Transverso abdominal","Estabilizadores"],
+         desc:"Acostado boca arriba, brazos al techo y rodillas a 90°. Extendé alternadamente brazo derecho + pierna izquierda cerca del suelo. Volvé y repetí del otro lado.",
+         tips:["Lumbar PEGADA al suelo siempre","Exhalá al extender","Movimiento MUY lento y controlado"],
+         mod:"✅ IDEAL para escoliosis: Fortalece el core profundo sin carga en la columna.",modType:"good",diff:1,isLeg:false}
+       ]},
+      {id:"1C",name:"Día C",sub:"Funcional + Core + Piernas (Opcional)",type:"functional",dur:"~50 min",
+       exercises:[
+        {name:"Remo Unilateral con Cable",sets:3,reps:"10 por lado",rest:"60",muscles:["Dorsal","Bíceps","Core"],
+         desc:"De lado a la polea, jalá con un brazo hacia el costado del cuerpo manteniendo el torso estable. Alternando lados.",
+         tips:["Espalda recta y estable","No gires el torso al jalar","Mismo peso en ambos lados"],
+         mod:"✅ Ideal para escoliosis: Trabaja cada lado por igual.",modType:"good",diff:1,isLeg:false},
+        {name:"Step-Up Bajo (20cm)",sets:3,reps:"10 por lado",rest:"75",muscles:["Glúteos","Cuádriceps"],
+         desc:"Con un escalón bajo (máx 20cm), subí con una pierna empujando desde el talón. Bajá controlado. Alternando piernas.",
+         tips:["Escalón MUY BAJO, máximo 20cm","Peso en el talón, no en la punta","Rodilla alineada con el pie al subir"],
+         mod:"🦵 Rótula: Altura MÁXIMA 20cm. Si sentís molestia en la rodilla, eliminá este ejercicio.",modType:"warn",diff:1,isLeg:true},
+        {name:"Press de Hombros Sentado",sets:3,reps:"10",rest:"60",muscles:["Deltoides","Tríceps"],
+         desc:"Sentado con respaldo, mancuernas a la altura de los hombros. Empujá hacia arriba sin bloquear los codos completamente.",
+         tips:["SIEMPRE sentado con respaldo","No arqueés la espalda baja","Ritmo controlado, 2 segundos arriba"],
+         mod:"⚠️ Escoliosis: Siempre sentado con respaldo para proteger la columna.",modType:"warn",diff:1,isLeg:false},
+        {name:"Glute Kickback en Máquina",sets:3,reps:"15",rest:"60",muscles:["Glúteos","Isquiotibiales"],
+         desc:"En la máquina específica o con polea en tobillo, empujás hacia atrás y arriba activando el glúteo al máximo.",
+         tips:["Apretá el glúteo al máximo en la cima","Sin balancear la cadera","Rango completo de movimiento"],
+         mod:"✅ Sin carga compresiva en la rodilla anterior. Excelente para la rótula.",modType:"good",diff:1,isLeg:true},
+        {name:"Superman",sets:3,reps:"12",rest:"45",muscles:["Erectores espinales","Glúteos","Isquiotibiales"],
+         desc:"Boca abajo, brazos extendidos al frente. Elevá simultáneamente brazos y piernas del suelo. Mantené 2 segundos arriba.",
+         tips:["Cuello en posición neutra, mirada al suelo","No hiperextiendas el cuello","Bajá lentamente"],
+         mod:"✅ Fortalece la musculatura paravertebral de forma segura para la escoliosis.",modType:"good",diff:1,isLeg:false},
+        {name:"Bird Dog",sets:3,reps:"10 por lado",rest:"45",muscles:["Core","Glúteos","Estabilizadores espinales"],
+         desc:"En cuatro apoyos, extendé brazo derecho y pierna izquierda simultáneamente. Mantené la cadera perfectamente nivelada.",
+         tips:["Cadera 100% estable, sin rotación","No arqueés la espalda baja","Movimiento muy lento y controlado"],
+         mod:"✅ EXCELENTE para escoliosis: Entrena la estabilización de la columna de forma bilateral.",modType:"good",diff:1,isLeg:false},
+        {name:"Plancha Lateral",sets:3,reps:"20 seg por lado",rest:"45",muscles:["Oblicuos","Core lateral"],
+         desc:"Apoyado en el antebrazo y borde del pie. Manteniendo el cuerpo completamente recto, cadera elevada.",
+         tips:["Cadera arriba y alineada con el cuerpo","No hundas la cadera","Respirá normalmente"],
+         mod:"✅ Fortalece los músculos laterales que ayudan a compensar la escoliosis.",modType:"good",diff:1,isLeg:false},
+        {name:"Elevación de Pantorrillas de Pie",sets:3,reps:"20",rest:"45",muscles:["Gemelos","Sóleo"],
+         desc:"De pie en el borde de un escalón o plataforma. Subí en puntas de pie y bajá completamente los talones.",
+         tips:["Rango completo: bajá los talones bajo el nivel","Aguantá 1 segundo en la punta","Control en la bajada"],
+         mod:"✅ Sin impacto en la rodilla. Excelente para gemelos.",modType:"good",diff:1,isLeg:true}
+       ]}
+    ]},
+    {n:2,name:"Semana 2",theme:"Progresión",isDeload:false,
+     desc:"<strong>Nuevos ejercicios</strong> para diferentes estímulos. Intentá aumentar levemente el peso respecto a la semana 1.",
+     days:[
+      {id:"2A",name:"Día A",sub:"Tren Superior + Core + Piernas",type:"upper",dur:"~55 min",
+       exercises:[
+        {name:"Jalón Agarre Estrecho",sets:3,reps:"12",rest:"60",muscles:["Dorsal","Bíceps"],
+         desc:"Igual al jalón normal pero con agarre más estrecho. Jalá hacia el esternón.",
+         tips:["Jalá hacia el esternón, no a la nuca","Codos hacia abajo y atrás","Varía el estímulo respecto al jalón normal"],
+         mod:"⚠️ Escoliosis: Columna neutra, evitá inclinarte hacia atrás en exceso.",modType:"warn",diff:1,isLeg:false},
+        {name:"Press Inclinado con Mancuernas",sets:3,reps:"12",rest:"60",muscles:["Pectoral","Tríceps"],
+         desc:"Banco a 30-45°, mancuernas a los lados del pecho. Empujá hacia arriba y ligeramente al centro.",
+         tips:["Ángulo moderado de 30-45°","Controlá la bajada 2 segundos","Codos a 45° del cuerpo"],
+         mod:"⚠️ Escoliosis: Banco con respaldo para soporte lumbar.",modType:"warn",diff:2,isLeg:false},
+        {name:"Face Pull en Polea",sets:3,reps:"15",rest:"45",muscles:["Deltoides posterior","Romboides","Manguito rotador"],
+         desc:"Polea alta con cuerda a la altura de los ojos. Jalá la cuerda hacia tu cara separando los extremos al final.",
+         tips:["Codos a la altura de los oídos o más arriba","Apretá los omóplatos al final","Pesos muy ligeros para este ejercicio"],
+         mod:"✅ MUY beneficioso para escoliosis: Mejora la postura y fortalece la espalda alta.",modType:"good",diff:1,isLeg:false},
+        {name:"Arnold Press Sentado",sets:3,reps:"10",rest:"60",muscles:["Deltoides","Tríceps"],
+         desc:"Mancuernas frente al pecho, palmas hacia adentro. Al subir, rotá las palmas hacia adelante. Al bajar, rotá de vuelta.",
+         tips:["SIEMPRE sentado con respaldo","Rotación suave y controlada","Pesos moderados"],
+         mod:"⚠️ Escoliosis: Siempre sentado con respaldo.",modType:"warn",diff:2,isLeg:false},
+        {name:"Curl Martillo (Hammer Curl)",sets:3,reps:"12",rest:"60",muscles:["Bíceps","Braquiorradial"],
+         desc:"Mancuernas con agarre neutro (pulgares apuntando arriba). Flexioná los codos sin rotar las muñecas.",
+         tips:["Codos fijos a los costados","Subí ambos brazos juntos","Apretá en la cima"],
+         mod:null,diff:1,isLeg:false},
+        {name:"Extensión de Tríceps sobre la Cabeza",sets:3,reps:"12",rest:"60",muscles:["Tríceps"],
+         desc:"Sentado, mancuerna sostenida con ambas manos sobre la cabeza. Flexioná y extendé los codos manteniendo los brazos verticales.",
+         tips:["Codos apuntando al techo fijos","Movimiento solo en el codo","Peso moderado"],
+         mod:"⚠️ Escoliosis: Realizalo sentado con respaldo. Peso liviano.",modType:"warn",diff:2,isLeg:false},
+        {name:"Plancha con Toque de Hombros",sets:3,reps:"10 por lado",rest:"45",muscles:["Core","Estabilizadores","Deltoides"],
+         desc:"En posición de plancha alta (manos), llevá una mano al hombro opuesto alternando lados. Cadera completamente estable.",
+         tips:["Cadera estable, sin oscilar","Pies separados para mayor base de soporte","Muy lento y controlado"],
+         mod:"✅ Mejora la estabilidad anti-rotacional. Muy bueno para escoliosis.",modType:"good",diff:2,isLeg:false},
+        {name:"Abducción de Cadera en Máquina",sets:3,reps:"15",rest:"45",muscles:["Abductores","Glúteo medio"],
+         desc:"Sentado en la máquina de abducción, separá las piernas contra la resistencia de manera controlada y volvé lentamente.",
+         tips:["Movimiento lento y controlado","Sentate erguido","No uses impulso para separar"],
+         mod:"✅ Sin impacto en rodilla. Fortalece los estabilizadores de cadera.",modType:"good",diff:1,isLeg:true}
+       ]},
+      {id:"2B",name:"Día B",sub:"Tren Inferior + Core",type:"lower",dur:"~55 min",
+       exercises:[
+        {name:"Sentadilla Goblet (Media)",sets:3,reps:"12",rest:"75",muscles:["Cuádriceps","Glúteos","Core"],
+         desc:"Sosteniendo una mancuerna frente al pecho. Bajá hasta 90° MÁXIMO manteniendo la espalda recta.",
+         tips:["Hasta 90° MÁXIMO","Espalda muy recta, pecho orgulloso","Rodillas hacia afuera al descender"],
+         mod:"🦵 Rótula: ROM LIMITADO a 90°. El peso al frente ayuda a mantener postura erguida.",modType:"warn",diff:2,isLeg:true},
+        {name:"Peso Muerto Stiff Leg con Mancuernas",sets:3,reps:"12",rest:"75",muscles:["Isquiotibiales","Glúteos"],
+         desc:"De pie, mancuernas frente a los muslos. Incliná el torso hacia adelante empujando la cadera hacia atrás, rodillas casi rectas.",
+         tips:["ESPALDA RECTA siempre","Es un movimiento de cadera, no de columna","Bajá hasta sentir el estiramiento en isquiotibiales"],
+         mod:"⚠️ Escoliosis: Peso moderado. Si hay molestia lumbar, reducí el rango de movimiento.",modType:"warn",diff:2,isLeg:true},
+        {name:"Glute Kickback en Máquina",sets:3,reps:"15",rest:"60",muscles:["Glúteos"],
+         desc:"En la máquina específica o con polea en tobillo, empujás hacia atrás y arriba apretando el glúteo al máximo.",
+         tips:["Apretá el glúteo al máximo en la cima","Sin balancear la cadera","Rango completo de movimiento"],
+         mod:"✅ Sin carga compresiva en la rodilla anterior. Excelente para la rótula.",modType:"good",diff:1,isLeg:true},
+        {name:"Aducción de Cadera en Máquina",sets:3,reps:"15",rest:"45",muscles:["Aductores","Muslo interno"],
+         desc:"Sentado en la máquina de aducción, juntá las piernas contra la resistencia de forma controlada.",
+         tips:["Movimiento controlado en ambas direcciones","No uses impulso","Rango completo"],
+         mod:"✅ Sin impacto articular. Equilibra el trabajo con la abducción de la semana 1.",modType:"good",diff:1,isLeg:true},
+        {name:"Curl de Isquiotibiales de Pie",sets:3,reps:"12 por pierna",rest:"60",muscles:["Isquiotibiales"],
+         desc:"En la máquina específica, flexioná una rodilla a la vez llevando el talón al glúteo.",
+         tips:["Control total sin balancear el cuerpo","Rango completo de movimiento","Pies en paralelo"],
+         mod:"✅ Aislamiento de isquiotibiales sin carga compresiva en la rótula.",modType:"good",diff:2,isLeg:true},
+        {name:"Elevación de Pantorrillas en Máquina",sets:3,reps:"20",rest:"45",muscles:["Gemelos","Sóleo"],
+         desc:"En la máquina de pantorrillas sentado o de pie. Subí en puntas de pie con rango máximo.",
+         tips:["Rango máximo de movimiento","Aguantá 1 segundo en la punta","Bajá completamente"],
+         mod:"✅ Sin impacto en rodilla.",modType:"good",diff:1,isLeg:true},
+        {name:"Rotación de Tronco con Polea",sets:3,reps:"12 por lado",rest:"45",muscles:["Oblicuos","Core rotacional"],
+         desc:"De lado a la polea, jalá transversalmente rotando el tronco de forma controlada. Pies fijos durante todo el movimiento.",
+         tips:["Controlá la rotación, sin impulso","Pies absolutamente fijos","Brazos casi extendidos"],
+         mod:"⚠️ Escoliosis: Peso MUY ligero. Rango moderado de rotación. Si genera molestia, evitalo.",modType:"warn",diff:2,isLeg:false}
+       ]},
+      {id:"2C",name:"Día C",sub:"Core + Funcional + Piernas (Opcional)",type:"functional",dur:"~50 min",
+       exercises:[
+        {name:"Pull-Apart con Banda Elástica",sets:3,reps:"15",rest:"45",muscles:["Deltoides posterior","Romboides"],
+         desc:"Con banda elástica a la altura del pecho, brazos casi extendidos. Estirá la banda separando los brazos hacia los lados.",
+         tips:["Brazos casi extendidos","Apretá los omóplatos al separar","Control en el regreso"],
+         mod:"✅ Excelente para postura. Muy beneficioso para escoliosis.",modType:"good",diff:1,isLeg:false},
+        {name:"Hip Thrust (Peso Corporal)",sets:3,reps:"15",rest:"60",muscles:["Glúteos","Isquiotibiales"],
+         desc:"Espalda apoyada en el borde de un banco a la altura de los omóplatos. Pies en el suelo. Elevá la cadera apretando los glúteos.",
+         tips:["Banco a la altura de los omóplatos","Mentón levemente al pecho","Pausa 1 segundo arriba con glúteo apretado"],
+         mod:"✅ Sin impacto en rodilla. Progresión natural del puente de glúteos.",modType:"good",diff:2,isLeg:true},
+        {name:"Prensa Unilateral (ROM 70°)",sets:3,reps:"10 por pierna",rest:"75",muscles:["Cuádriceps","Glúteos"],
+         desc:"Igual a la prensa normal pero con una sola pierna. ROM MÁXIMO 70° de flexión. Peso reducido respecto a la prensa bilateral.",
+         tips:["UN pie centrado en la plataforma","ROM estrictamente limitado a 70°","Peso mucho menor que en la prensa normal"],
+         mod:"🦵 Rótula: ROM ESTRICTAMENTE limitado. Peso proporcional al ROM reducido.",modType:"warn",diff:2,isLeg:true},
+        {name:"Pallof Press",sets:3,reps:"12 por lado",rest:"45",muscles:["Core","Oblicuos","Estabilizadores"],
+         desc:"De lado a la polea a la altura del pecho. Extendé los brazos al frente y volvé sin permitir que el cuerpo rote.",
+         tips:["Resistí la rotación activamente","Cuerpo perpendicular a la polea","Core muy bien activado antes de extender"],
+         mod:"✅ Anti-rotación: Excelente para columna. MUY recomendado para escoliosis.",modType:"good",diff:2,isLeg:false},
+        {name:"Plancha con Extensión de Brazo",sets:3,reps:"10 por lado",rest:"45",muscles:["Core","Deltoides","Estabilizadores"],
+         desc:"En posición de plancha alta (manos), extendé un brazo al frente completamente. Alternando brazos.",
+         tips:["Cadera absolutamente estable","Sin rotar el tronco","Extensión completa del brazo"],
+         mod:"✅ Progresión del Dead Bug. Fortalece anti-rotación.",modType:"good",diff:2,isLeg:false},
+        {name:"Cat-Cow (Gato-Camello)",sets:3,reps:"10",rest:"30",muscles:["Columna","Core"],
+         desc:"En cuatro apoyos, alternará entre arquear (camello - cadera arriba) y redondear (gato - cadera abajo). Coordinado con la respiración.",
+         tips:["Movimiento suave y consciente","Coordiná con la respiración","Sin dolor, solo movilidad"],
+         mod:"✅ Excelente para escoliosis: Moviliza la columna de forma segura.",modType:"good",diff:1,isLeg:false},
+        {name:"Abducción de Cadera (Banda Elástica)",sets:3,reps:"15 por lado",rest:"45",muscles:["Abductores","Glúteo medio"],
+         desc:"De pie con banda en los tobillos. Mantené el equilibrio en una pierna y separá la otra hacia el lado de forma controlada.",
+         tips:["Tronco estable, no inclines el cuerpo","Movimiento lento y controlado","Regresá sin dejar que la banda te arrastre"],
+         mod:"✅ Sin impacto en rodilla. Excelente para estabilidad de cadera.",modType:"good",diff:1,isLeg:true}
+       ]}
+    ]},
+    {n:3,name:"Semana 3",theme:"Intensificación",isDeload:false,
+     desc:"Ejercicios más desafiantes y mayor carga. Mantené siempre la <strong>técnica como prioridad</strong>.",
+     days:[
+      {id:"3A",name:"Día A",sub:"Tren Superior + Core + Piernas",type:"upper",dur:"~55 min",
+       exercises:[
+        {name:"Dominadas Asistidas",sets:3,reps:"8",rest:"90",muscles:["Dorsal","Bíceps","Core"],
+         desc:"En la máquina de asistencia, seleccioná el peso de asistencia necesario para completar 8 repeticiones limpias. Bajá completamente.",
+         tips:["Agarre prono al ancho de hombros","Bajá hasta la extensión completa","Sin balanceo del cuerpo"],
+         mod:"⚠️ Escoliosis: Colgarse y bajar controlado es excelente. Evitá el balanceo.",modType:"warn",diff:3,isLeg:false},
+        {name:"Press Plano con Mancuernas",sets:3,reps:"12",rest:"60",muscles:["Pectoral","Tríceps"],
+         desc:"Acostado en banco plano, mancuernas a los lados del pecho. Bajá hasta que los codos estén a 90° y empujá.",
+         tips:["Codos a 45° del cuerpo (no a 90°)","Controlá la bajada 2 segundos","Pies firmes en el suelo"],
+         mod:"⚠️ Escoliosis: Banco plano con soporte completo de la espalda.",modType:"warn",diff:2,isLeg:false},
+        {name:"Remo con Mancuerna (1 Brazo)",sets:3,reps:"12 por lado",rest:"60",muscles:["Dorsal","Romboides","Bíceps"],
+         desc:"Apoyado en el banco con rodilla y mano del mismo lado. Jalá la mancuerna hacia el costado del torso con el otro brazo.",
+         tips:["Espalda paralela al suelo","Codo cerca del cuerpo al jalar","El mismo peso en ambos lados"],
+         mod:"⚠️ Escoliosis: Usá el mismo peso en ambos lados. Evitá compensaciones.",modType:"warn",diff:2,isLeg:false},
+        {name:"Elevaciones Frontales + Laterales Combo",sets:3,reps:"10 combinadas",rest:"60",muscles:["Deltoides"],
+         desc:"5 elevaciones frontales + 5 laterales = 1 serie. Alternando entre frontal y lateral con mancuernas.",
+         tips:["Pesos livianos para el ejercicio combinado","Control total en ambos movimientos","Sin balanceo del cuerpo"],
+         mod:"⚠️ Escoliosis: Realizá las laterales con ambos brazos simultáneamente.",modType:"warn",diff:2,isLeg:false},
+        {name:"Curl de Bíceps Banco Inclinado",sets:3,reps:"12",rest:"60",muscles:["Bíceps"],
+         desc:"Sentado en banco inclinado a 45°, brazos colgando naturalmente. Flexioná los codos desde la posición completamente extendida.",
+         tips:["Brazo completamente extendido al inicio","Rango amplísimo de movimiento","Sin balanceo del cuerpo"],
+         mod:null,diff:2,isLeg:false},
+        {name:"Press Francés con Mancuernas",sets:3,reps:"12",rest:"60",muscles:["Tríceps"],
+         desc:"Acostado en banco plano, mancuernas sobre la frente. Extendé los codos llevando las mancuernas al techo.",
+         tips:["Codos apuntando al techo, fijos","No separes los codos","Controlá la bajada completamente"],
+         mod:"⚠️ Escoliosis: Acostado en banco con soporte lumbar.",modType:"warn",diff:2,isLeg:false},
+        {name:"Plancha + Fila de Mancuerna",sets:3,reps:"8 por lado",rest:"60",muscles:["Core","Dorsal","Estabilizadores"],
+         desc:"En posición de plancha alta con mancuernas en el suelo. Jalá una mancuerna hacia el costado del torso alternando lados.",
+         tips:["Cadera absolutamente estable, sin rotar","Pies bien separados para mayor base","Peso moderado para priorizar la estabilidad"],
+         mod:"⚠️ Escoliosis: Enfocate en no rotar el tronco. Pesos livianos.",modType:"warn",diff:3,isLeg:false},
+        {name:"Glute Kickback en Máquina",sets:3,reps:"15",rest:"45",muscles:["Glúteos","Isquiotibiales"],
+         desc:"En la máquina específica, empujás hacia atrás y arriba apretando el glúteo al máximo. Sin balancear la cadera.",
+         tips:["Apretá el glúteo al máximo en la cima","Sin balancear la cadera","Rango completo de movimiento"],
+         mod:"✅ Sin carga compresiva en la rodilla anterior. Excelente para la rótula.",modType:"good",diff:1,isLeg:true}
+       ]},
+      {id:"3B",name:"Día B",sub:"Tren Inferior + Core",type:"lower",dur:"~60 min",
+       exercises:[
+        {name:"Split Squat con Soporte",sets:3,reps:"10 por lado",rest:"90",muscles:["Cuádriceps","Glúteos"],
+         desc:"Un pie adelante y el otro atrás. Bajá la rodilla trasera hacia el suelo LEVEMENTE. Podés sostener algo para equilibrio.",
+         tips:["Profundidad MUY LIMITADA","Rodilla delantera no pasa la punta del pie","Sostente en algo si es necesario"],
+         mod:"🦵 Rótula: Flexión de rodilla MÍNIMA. Si hay dolor, reducí la profundidad o eliminá este ejercicio.",modType:"warn",diff:3,isLeg:true},
+        {name:"Peso Muerto Rumano con Mancuernas",sets:3,reps:"12",rest:"75",muscles:["Isquiotibiales","Glúteos"],
+         desc:"De pie, mancuernas frente a los muslos. Empujá las caderas hacia atrás bajando las mancuernas cerca de las piernas.",
+         tips:["ESPALDA RECTA es la prioridad","Movimiento de bisagra de cadera","Sentí el estiramiento en isquiotibiales"],
+         mod:"⚠️ Escoliosis: Peso moderado. Si hay molestia lumbar, reducí el rango.",modType:"warn",diff:2,isLeg:true},
+        {name:"Hip Thrust con Mancuerna",sets:3,reps:"12",rest:"75",muscles:["Glúteos","Isquiotibiales"],
+         desc:"Espalda en borde del banco a la altura de omóplatos, mancuerna en la cadera. Elevá la cadera apretando los glúteos.",
+         tips:["Mancuerna bien sujeta sobre la cadera","Mentón al pecho","Máxima contracción de glúteo arriba"],
+         mod:"✅ Sin impacto en rodilla. Excelente para glúteos.",modType:"good",diff:2,isLeg:true},
+        {name:"Extensión de Cuádriceps en Máquina",sets:3,reps:"12",rest:"60",muscles:["Cuádriceps"],
+         desc:"Sentado en la máquina, extendé las rodillas desde 90° hasta casi completamente extendidas. Controlá el regreso.",
+         tips:["ROM: de 90° hasta casi completo (no bloquees la rodilla)","Controlá el regreso 2 segundos","Sin impulso"],
+         mod:"🦵 Rótula: Evitá el rango final de extensión completa. Peso moderado.",modType:"warn",diff:2,isLeg:true},
+        {name:"Abducción de Cadera en Máquina",sets:3,reps:"15",rest:"45",muscles:["Abductores","Glúteo medio"],
+         desc:"Sentado en la máquina de abducción, separá las piernas contra la resistencia de manera controlada.",
+         tips:["Movimiento lento y controlado","Sentate erguido","No uses impulso para separar"],
+         mod:"✅ Sin impacto articular.",modType:"good",diff:1,isLeg:true},
+        {name:"Elevación de Pantorrillas en Máquina",sets:3,reps:"20",rest:"45",muscles:["Gemelos","Sóleo"],
+         desc:"En la máquina de pantorrillas. Subí en puntas de pie con rango máximo. Aguantá 1 segundo arriba.",
+         tips:["Rango máximo de movimiento","Aguantá 1 segundo en la punta","Bajá completamente"],
+         mod:"✅ Sin impacto en rodilla.",modType:"good",diff:1,isLeg:true},
+        {name:"Puente de Glúteos Una Pierna",sets:3,reps:"10 por lado",rest:"60",muscles:["Glúteos","Core"],
+         desc:"Igual al puente normal pero con una pierna extendida hacia el techo. Elevá la cadera apretando el glúteo de la pierna doblada.",
+         tips:["Controlá la rotación de cadera","Mantené la cadera nivelada","Peso en el talón apoyado"],
+         mod:"🦵 Rótula: Carga en el talón apoyado, no presión en la rodilla. Progresión natural del puente.",modType:"warn",diff:2,isLeg:true}
+       ]},
+      {id:"3C",name:"Día C",sub:"Core + Funcional + Piernas (Opcional)",type:"functional",dur:"~50 min",
+       exercises:[
+        {name:"Dominadas Asistidas (Agarre Supino)",sets:3,reps:"8",rest:"90",muscles:["Bíceps","Dorsal"],
+         desc:"Igual a las dominadas normales pero con agarre supino (palmas hacia vos). Mayor énfasis en bíceps.",
+         tips:["Agarre supino al ancho de hombros","Bajá completamente","Tira desde los codos, no las manos"],
+         mod:"⚠️ Escoliosis: Extensión completa excelente para la columna. Sin balanceo.",modType:"warn",diff:3,isLeg:false},
+        {name:"Curl de Isquiotibiales de Pie",sets:3,reps:"12 por pierna",rest:"60",muscles:["Isquiotibiales"],
+         desc:"En la máquina específica o con mancuerna al tobillo, flexioná una rodilla a la vez llevando el talón al glúteo.",
+         tips:["Control total sin balancear el cuerpo","Rango completo de movimiento","Pies en paralelo"],
+         mod:"✅ Aislamiento de isquiotibiales sin carga compresiva en la rótula.",modType:"good",diff:2,isLeg:true},
+        {name:"Press de Hombros con Kettlebell",sets:3,reps:"10",rest:"60",muscles:["Deltoides","Tríceps"],
+         desc:"Sentado, kettlebell en posición de rack (codo bajo, cerca del cuerpo). Empujá hacia arriba de forma controlada.",
+         tips:["SIEMPRE sentado con respaldo","Control total del kettlebell","No arqueés la espalda"],
+         mod:"⚠️ Escoliosis: Siempre sentado con respaldo. Peso moderado.",modType:"warn",diff:3,isLeg:false},
+        {name:"Puente de Glúteos Una Pierna",sets:3,reps:"10 por lado",rest:"60",muscles:["Glúteos","Core"],
+         desc:"Igual al puente normal pero con una pierna extendida hacia el techo. Elevá la cadera apretando el glúteo de la pierna doblada.",
+         tips:["Controlá la rotación de cadera","Mantené la cadera nivelada","Peso en el talón apoyado"],
+         mod:"🦵 Rótula: Carga en el talón apoyado, no presión en la rodilla.",modType:"warn",diff:2,isLeg:true},
+        {name:"Plancha con Extensión de Brazo",sets:3,reps:"10 por lado",rest:"45",muscles:["Core","Deltoides","Estabilizadores"],
+         desc:"En posición de plancha alta (manos), extendé un brazo al frente completamente. Alternando brazos.",
+         tips:["Cadera absolutamente estable","Sin rotar el tronco","Extensión completa del brazo"],
+         mod:"✅ Progresión del Dead Bug. Fortalece anti-rotación.",modType:"good",diff:2,isLeg:false},
+        {name:"Bird Dog",sets:3,reps:"10 por lado",rest:"45",muscles:["Core","Glúteos","Estabilizadores espinales"],
+         desc:"En cuatro apoyos, extendé brazo derecho y pierna izquierda simultáneamente. Mantené la cadera perfectamente nivelada.",
+         tips:["Cadera 100% estable, sin rotación","No arqueés la espalda baja","Movimiento muy lento y controlado"],
+         mod:"✅ EXCELENTE para escoliosis.",modType:"good",diff:1,isLeg:false},
+        {name:"Elevación de Pantorrillas de Pie",sets:3,reps:"20",rest:"45",muscles:["Gemelos","Sóleo"],
+         desc:"De pie en el borde de un escalón. Subí en puntas de pie y bajá completamente los talones.",
+         tips:["Rango completo","Aguantá 1 segundo en la punta","Control en la bajada"],
+         mod:"✅ Sin impacto en la rodilla.",modType:"good",diff:1,isLeg:true}
+       ]}
+    ]},
+    {n:4,name:"Semana 4",theme:"Deload",isDeload:true,
+     desc:"Semana de <strong>recuperación activa</strong>. 60% del peso habitual, 2 series en lugar de 3. El cuerpo se adapta en el descanso.",
+     days:[
+      {id:"4A",name:"Día A",sub:"Tren Superior (Deload) + Piernas",type:"deload",dur:"~40 min",
+       exercises:[
+        {name:"Jalón al Pecho (Deload)",sets:2,reps:"12",rest:"60",muscles:["Dorsal","Bíceps"],
+         desc:"Jalón al pecho al 60% del peso usual. Enfocate en la técnica perfecta y sentir el músculo trabajar.",
+         tips:["60% del peso habitual","Técnica perfecta, nada de inercia","Controlá en ambas direcciones"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:false},
+        {name:"Press de Pecho Máquina (Deload)",sets:2,reps:"12",rest:"60",muscles:["Pectoral","Tríceps"],
+         desc:"Press de pecho al 60% del peso usual. Rango completo y control total.",
+         tips:["60% del peso","Control total","Enfocate en sentir el pecho"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:false},
+        {name:"Remo en Polea (Deload)",sets:2,reps:"12",rest:"60",muscles:["Dorsal","Romboides"],
+         desc:"Remo en polea baja al 60% del peso usual. Apretá bien los omóplatos.",
+         tips:["60% del peso","Apretá los omóplatos","Sin balanceo"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:false},
+        {name:"Curl de Bíceps (Deload)",sets:2,reps:"12",rest:"60",muscles:["Bíceps"],
+         desc:"Curl de bíceps al 60% del peso usual.",
+         tips:["60% del peso","Control total","Codos fijos"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:false},
+        {name:"Extensión Tríceps (Deload)",sets:2,reps:"12",rest:"60",muscles:["Tríceps"],
+         desc:"Extensión de tríceps en polea al 60% del peso usual.",
+         tips:["60% del peso","Codos fijos","Rango completo"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:false},
+        {name:"Plancha Frontal (Deload)",sets:2,reps:"20 seg",rest:"45",muscles:["Core","Estabilizadores"],
+         desc:"Plancha frontal más corta y con menor intensidad. Enfocate en activar el core suavemente.",
+         tips:["20 segundos, sin exigirse","Activación suave del core","Respiración profunda"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:false},
+        {name:"Puente de Glúteos (Deload)",sets:2,reps:"15",rest:"45",muscles:["Glúteos","Isquiotibiales"],
+         desc:"Puente de glúteos con solo peso corporal. Técnica perfecta.",
+         tips:["Solo peso corporal","Apretá bien en la cima","Pausa de 2 segundos arriba"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:true}
+       ]},
+      {id:"4B",name:"Día B",sub:"Tren Inferior (Deload)",type:"deload",dur:"~40 min",
+       exercises:[
+        {name:"Media Sentadilla Smith (Deload)",sets:2,reps:"12",rest:"75",muscles:["Cuádriceps","Glúteos"],
+         desc:"Sentadilla en Smith al 60% del peso. Énfasis en la técnica.",
+         tips:["60% del peso","ROM limitado a 90°","Técnica perfecta"],
+         mod:"🦵 Rótula: ROM LIMITADO a 90° máximo.",modType:"warn",diff:1,isLeg:true},
+        {name:"Prensa de Pierna (Deload)",sets:2,reps:"12",rest:"75",muscles:["Cuádriceps","Glúteos","Isquiotibiales"],
+         desc:"Prensa al 60% del peso usual. Énfasis en sentir los músculos trabajar.",
+         tips:["60% del peso","ROM máximo 70°","Sin impulso"],
+         mod:"🦵 Rótula: ROM ESTRICTAMENTE limitado a 70°.",modType:"warn",diff:1,isLeg:true},
+        {name:"Puente de Glúteos (Deload)",sets:2,reps:"15",rest:"60",muscles:["Glúteos","Isquiotibiales"],
+         desc:"Puente de glúteos con solo peso corporal.",
+         tips:["Solo peso corporal","Apretá bien en la cima","Pausa de 2 segundos arriba"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:true},
+        {name:"Curl Isquiotibiales (Deload)",sets:2,reps:"12",rest:"60",muscles:["Isquiotibiales"],
+         desc:"Curl de isquiotibiales al 60% del peso.",
+         tips:["60% del peso","Control total","Rango completo"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:true},
+        {name:"Abducción de Cadera (Deload)",sets:2,reps:"15",rest:"45",muscles:["Abductores"],
+         desc:"Abducción con peso muy ligero. Más repeticiones.",
+         tips:["Peso muy ligero","Más repeticiones lentas","Control en ambas direcciones"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:true},
+        {name:"Elevación de Pantorrillas (Deload)",sets:2,reps:"20",rest:"45",muscles:["Gemelos"],
+         desc:"Solo peso corporal. Máximo rango de movimiento.",
+         tips:["Solo peso corporal","Rango máximo","Aguantá 2 segundos arriba"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:true},
+        {name:"Dead Bug (Deload)",sets:2,reps:"8 por lado",rest:"45",muscles:["Core"],
+         desc:"Dead Bug enfocándote en la respiración coordinada.",
+         tips:["Lumbar pegada al suelo","Respiración coordinada con el movimiento","Movimiento muy lento"],
+         mod:"Semana de recuperación activa.",modType:"good",diff:1,isLeg:false}
+       ]},
+      {id:"4C",name:"Día C",sub:"Movilidad y Flexibilidad",type:"deload",dur:"~40 min",
+       exercises:[
+        {name:"Movilidad de Cadera (Círculos)",sets:2,reps:"10 por lado",rest:"30",muscles:["Cadera","Glúteos"],
+         desc:"En cuatro apoyos, dibujá círculos grandes con la rodilla. Amplitud máxima cómoda. En ambas direcciones.",
+         tips:["Círculos amplios","En ambas direcciones","Lento y consciente"],
+         mod:"✅ Excelente para ambas condiciones.",modType:"good",diff:1,isLeg:true},
+        {name:"Rotación Torácica (4 apoyos)",sets:2,reps:"10 por lado",rest:"30",muscles:["Columna","Core"],
+         desc:"En cuatro apoyos, una mano detrás de la nuca. Rotá abriendo el codo hacia el techo lo máximo posible.",
+         tips:["Rota desde la columna torácica, no lumbar","Sin dolor","Amplitud progresiva"],
+         mod:"✅ MUY beneficioso para escoliosis: Trabaja la movilidad de la columna torácica.",modType:"good",diff:1,isLeg:false},
+        {name:"World's Greatest Stretch",sets:2,reps:"5 por lado",rest:"30",muscles:["Cadera","Columna","Deltoides"],
+         desc:"Zancada larga con mano del mismo lado en el suelo. Rotá abriendo el brazo interior hacia el techo.",
+         tips:["Profundidad cómoda, sin forzar","Sin dolor","Respirá en cada posición"],
+         mod:"🦵 Rótula: Evitá la flexión profunda de la rodilla delantera.",modType:"warn",diff:1,isLeg:true},
+        {name:"Child's Pose con Extensión",sets:2,reps:"5 respiraciones",rest:"30",muscles:["Columna","Cadera","Deltoides"],
+         desc:"Sentado sobre los talones, brazos extendidos al frente. Respiraciones profundas relajándote completamente.",
+         tips:["Relajate completamente","Respiraciones diafragmáticas lentas","Dejate caer en la posición"],
+         mod:"✅ Descomprime toda la columna. Ideal para escoliosis.",modType:"good",diff:1,isLeg:false},
+        {name:"Estiramiento Cadera Flexora",sets:2,reps:"30 seg por lado",rest:"30",muscles:["Cadera","Cuádriceps"],
+         desc:"Arrodillado en una rodilla, pie adelante. Empujá la cadera hacia adelante suavemente activando el glúteo.",
+         tips:["Sin dolor","Cadera hacia adelante","Espalda recta"],
+         mod:"🦵 Rótula: Almohadilla bajo la rodilla en el suelo.",modType:"warn",diff:1,isLeg:true},
+        {name:"Estiramiento de Pecho en Puerta",sets:2,reps:"30 seg",rest:"30",muscles:["Pectoral","Bíceps"],
+         desc:"En el marco de una puerta, antebrazos apoyados a 90°. Inclinate hacia adelante dejando caer el pecho.",
+         tips:["Posición de brazos en T o Y","Suave, sin forzar","Respirá profundo"],
+         mod:"✅ Mejora la postura. Muy beneficioso para escoliosis.",modType:"good",diff:1,isLeg:false},
+        {name:"Respiración Diafragmática",sets:1,reps:"10 respiraciones",rest:"0",muscles:["Core"],
+         desc:"Acostado boca arriba. Inhalá inflando el abdomen (no el pecho) 4 segundos. Exhalá completamente 6 segundos.",
+         tips:["Mano en abdomen para verificar","Inhalación 4s — Exhalación 6s","Relajate completamente"],
+         mod:"✅ Activa el core profundo. Excelente para cualquier condición.",modType:"good",diff:1,isLeg:false}
+       ]}
+    ]}
+  ],
+  stretches:[
+    {name:"Cuádriceps de Pie",dur:"30 seg c/lado",emoji:"🦵",cat:"piernas",
+     desc:"De pie, doblá una rodilla llevando el talón al glúteo. Tomá el tobillo con la mano del mismo lado. Cadera neutra.",
+     steps:["Sostenete de algo si necesitás equilibrio","Rodillas juntas, una al lado de la otra","Empujá levemente la cadera hacia adelante"],
+     mod:"🦵 Rótula: No forzar la flexión si hay molestia. Alternativa: estiramiento acostado de costado.",modType:"warn"},
+    {name:"Isquiotibiales Sentado",dur:"30 seg c/lado",emoji:"🦵",cat:"piernas",
+     desc:"Sentado en el suelo, una pierna extendida y la otra doblada hacia adentro. Inclinarte hacia la pierna extendida con espalda recta.",
+     steps:["Espalda recta al inclinarte (no la redondees)","No llegues al punto de dolor","Respirá profundo en el estiramiento"],
+     mod:"⚠️ Escoliosis: La espalda recta ES la prioridad, más que llegar al pie.",modType:"warn"},
+    {name:"Pigeon Pose Modificado",dur:"30 seg c/lado",emoji:"🍑",cat:"cadera",
+     desc:"Acostado boca arriba, cruzá el tobillo sobre la rodilla opuesta (número 4). Tomá la pierna de atrás hacia el pecho.",
+     steps:["Es la versión SEGURA del pigeon pose original","Controlá la intensidad jalando más o menos","Respirá profundamente durante el estiramiento"],
+     mod:"✅ Esta versión es completamente segura para la rótula (sin compresión directa).",modType:"good"},
+    {name:"Cadera Flexora (Lunge Stretch)",dur:"30 seg c/lado",emoji:"🍑",cat:"cadera",
+     desc:"Arrodillado en una rodilla con el pie delantero adelante. Empujá la cadera hacia adelante activando el glúteo trasero.",
+     steps:["Espalda recta, sin arquear","Activá el glúteo del lado arrodillado","Sin dolor, solo estiramiento suave"],
+     mod:"🦵 Rótula: Colocá una almohadilla cómoda bajo la rodilla que va al suelo.",modType:"warn"},
+    {name:"Rotación de Columna Acostado",dur:"30 seg c/lado",emoji:"🔄",cat:"columna",
+     desc:"Acostado boca arriba, una rodilla al pecho y cruzala hacia el lado opuesto. Brazos en cruz, hombros en el suelo.",
+     steps:["Hombros pegados al suelo siempre","Suave, sin forzar la rotación","Respirá profundo y relajate en la posición"],
+     mod:"✅ Excelente para descomprimir la columna. MUY beneficioso para escoliosis.",modType:"good"},
+    {name:"Estiramiento de Pectoral",dur:"30 seg",emoji:"💪",cat:"tren-superior",
+     desc:"En el marco de una puerta, antebrazos apoyados a 90°. Inclinate hacia adelante dejando caer el pecho.",
+     steps:["Probá distintas alturas de brazos (en T o en Y)","Suave al principio","Sentí el estiramiento en el pecho"],
+     mod:"✅ Mejora la postura y contrarresta horas de trabajo sentado.",modType:"good"},
+    {name:"Cat-Cow Movilidad",dur:"10 repeticiones lentas",emoji:"🔄",cat:"columna",
+     desc:"En cuatro apoyos, alternará entre arquear (camello) y redondear (gato) la espalda. Coordinado con la respiración.",
+     steps:["Inhalá al arquear (camello)","Exhalá al redondear (gato)","Movimiento suave y completo"],
+     mod:"✅ Excelente para movilizar toda la columna. MUY recomendado para escoliosis.",modType:"good"},
+    {name:"Estiramiento de Hombros",dur:"30 seg c/lado",emoji:"💪",cat:"tren-superior",
+     desc:"Llevá un brazo cruzando el pecho. Con el otro brazo empujá suavemente por encima del codo hacia el pecho.",
+     steps:["Sin elevar el hombro","Cuello completamente relajado","Suave presión, sin dolor"],
+     mod:null,modType:"good"},
+    {name:"Elongación Lateral de Torso",dur:"30 seg c/lado",emoji:"🔄",cat:"columna",
+     desc:"De pie, un brazo extendido arriba. Inclinarte hacia el lado contrario suavemente. Cuerpo en un único plano.",
+     steps:["Inclinación lateral suave y controlada","Sin rotar el torso hacia adelante o atrás","Respirá expandiendo el costado que estirás"],
+     mod:"✅ MUY beneficioso para escoliosis: Trabaja la elongación lateral de la columna.",modType:"good"},
+    {name:"Child's Pose (Cierre de sesión)",dur:"45 seg",emoji:"🧘",cat:"columna",
+     desc:"Sentado sobre los talones, inclinarte hacia adelante con los brazos extendidos al frente. Frente en el suelo si es posible.",
+     steps:["Relajate completamente, suelta toda la tensión","Frente en el suelo o en las manos","Respiraciones profundas y lentas"],
+     mod:"✅ Descomprime toda la columna. Excelente cierre de sesión para ambas condiciones.",modType:"good"}
+  ]
+};
+
+// ==================== PROGRESS (localStorage) ====================
+function getProgress(){
+  try{return JSON.parse(localStorage.getItem('gymapp_v2_progress')||'{}');}catch{return {};}
+}
+function saveProgress(p){
+  try{localStorage.setItem('gymapp_v2_progress',JSON.stringify(p));}catch{}
+}
+function isSetDone(dayId,exIdx,setIdx){
+  return !!getProgress()[dayId+'_'+exIdx+'_'+setIdx];
+}
+function toggleSet(dayId,exIdx,setIdx,totalSets,el){
+  const p=getProgress();
+  const key=dayId+'_'+exIdx+'_'+setIdx;
+  if(p[key]){delete p[key];}
+  else{p[key]={done:true,date:new Date().toISOString()};}
+  saveProgress(p);
+  el.classList.toggle('done');
+  el.textContent=p[key]?'✓':(setIdx+1);
+  updateWorkoutProgress(dayId);
+}
+function countDone(dayId,exercises){
+  const p=getProgress();
+  let done=0;
+  exercises.forEach((ex,ei)=>{
+    let allDone=true;
+    for(let s=0;s<ex.sets;s++){if(!p[dayId+'_'+ei+'_'+s]){allDone=false;break;}}
+    if(allDone)done++;
+  });
+  return done;
+}
+function updateWorkoutProgress(dayId){
+  const bar=document.getElementById('wProgressFill');
+  const label=document.getElementById('wProgressLabel');
+  if(!bar||!label)return;
+  const wk=DATA.weeks.find(w=>w.days.find(d=>d.id===dayId));
+  if(!wk)return;
+  const day=wk.days.find(d=>d.id===dayId);
+  const done=countDone(dayId,day.exercises);
+  const pct=Math.round(done/day.exercises.length*100);
+  bar.style.width=pct+'%';
+  label.textContent=done+' de '+day.exercises.length+' ejercicios completos';
+}
+
+// ==================== ALARM SOUND ====================
+function playAlarmSound(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const notes=[523,659,784,1047]; // C5 E5 G5 C6
+    notes.forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='sine';osc.frequency.value=freq;
+      const t=ctx.currentTime+i*0.18;
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(0.4,t+0.05);
+      gain.gain.linearRampToValueAtTime(0,t+0.18);
+      osc.start(t);osc.stop(t+0.2);
+    });
+  }catch(e){}
+}
+
+// ==================== TIMER ====================
+let timerInterval=null;
+function startTimer(secs){
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  const box=document.getElementById('globalTimer');
+  const cnt=document.getElementById('timerCount');
+  box.style.display='flex';
+  box.innerHTML=`
+    <div class="timer-main">
+      <div class="timer-count" id="timerCount">${secs}</div>
+      <div class="timer-label">segundos de descanso</div>
+    </div>
+    <button class="timer-stop" onclick="stopTimer()">✕</button>`;
+  let remaining=secs;
+  timerInterval=setInterval(()=>{
+    remaining--;
+    const c=document.getElementById('timerCount');
+    if(c)c.textContent=remaining;
+    if(remaining<=0){
+      clearInterval(timerInterval);timerInterval=null;
+      playAlarmSound();
+      if(navigator.vibrate)navigator.vibrate([300,100,300]);
+      const b=document.getElementById('globalTimer');
+      if(b)b.innerHTML='<div class="timer-done-msg">✅ ¡Descanso terminado! A la siguiente serie.</div>';
+      setTimeout(()=>{const b2=document.getElementById('globalTimer');if(b2)b2.style.display='none';},2500);
+    }
+  },1000);
+}
+function stopTimer(){
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  const b=document.getElementById('globalTimer');
+  if(b)b.style.display='none';
+}
+
+// ==================== NAV ====================
+let currentWeek=1,currentStretchCat='todo';
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  const nb=document.getElementById('nav-'+id);
+  if(nb)nb.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ==================== HOME ====================
+function renderHomeWeekCards(){
+  const week=DATA.weeks[currentWeek-1];
+  let html='<p style="font-size:13px;color:var(--muted);margin-bottom:10px;">'+week.name+' — '+week.theme+'</p>';
+  week.days.forEach(d=>{
+    const done=countDone(d.id,d.exercises);
+    const pct=Math.round(done/d.exercises.length*100);
+    html+=`<div class="day-card ${d.type}" onclick="openWorkout('${d.id}')">
+      <div class="day-card-row">
+        <div><div class="day-card-title">${d.name}</div><div class="day-card-sub">${d.sub}</div></div>
+        <span class="badge badge-${d.type==='deload'?'deload':d.type}">${d.type==='upper'?'Superior':d.type==='lower'?'Inferior':d.type==='functional'?'Funcional':'Deload'}</span>
+      </div>
+      <div class="day-meta"><span>⏱ ${d.dur}</span><span>📋 ${d.exercises.length} ejercicios</span>${d.type==='functional'?'<span>⭐ Opcional</span>':''}</div>
+      ${pct>0?`<div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>`:''}
+    </div>`;
+  });
+  document.getElementById('homeWeekCards').innerHTML=html;
+}
+
+// ==================== PLAN ====================
+function buildWeekTabs(){
+  let html='';
+  DATA.weeks.forEach(w=>{
+    html+=`<button class="week-tab${w.n===currentWeek?' active':''}" onclick="selectWeek(${w.n})">${w.name}</button>`;
+  });
+  document.getElementById('weekTabs').innerHTML=html;
+}
+function selectWeek(n){
+  currentWeek=n;
+  buildWeekTabs();
+  renderPlanWeek(n);
+  const w=DATA.weeks[n-1];
+  document.getElementById('hBadge').textContent=w.name+' — '+w.theme;
+  renderHomeWeekCards();
+}
+function renderPlanWeek(n){
+  const week=DATA.weeks[n-1];
+  document.getElementById('planWeekDesc').innerHTML=`<div class="week-desc">${week.desc}${week.isDeload?'<br><br>💤 <strong>Semana de deload</strong>: 60% del peso, 2 series en vez de 3. Tu cuerpo lo necesita.':''}</div>`;
+  let html='';
+  week.days.forEach(d=>{
+    const done=countDone(d.id,d.exercises);
+    const pct=Math.round(done/d.exercises.length*100);
+    html+=`<div class="day-card ${d.type}" onclick="openWorkout('${d.id}')">
+      <div class="day-card-row">
+        <div><div class="day-card-title">${d.name}</div><div class="day-card-sub">${d.sub}</div></div>
+        <span class="badge badge-${d.type==='deload'?'deload':d.type}">${d.type==='upper'?'Superior':d.type==='lower'?'Inferior':d.type==='functional'?'Funcional':'Deload'}</span>
+      </div>
+      <div class="day-meta"><span>⏱ ${d.dur}</span><span>📋 ${d.exercises.length} ejercicios</span>${d.type==='functional'?'<span>⭐ Opcional</span>':''}</div>
+      ${pct>0?`<div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>`:''}
+    </div>`;
+  });
+  document.getElementById('planDayCards').innerHTML=html;
+}
+
+// ==================== WORKOUT (SUPERSETS) ====================
+function openWorkout(dayId){
+  stopTimer();
+  const wk=DATA.weeks.find(w=>w.days.find(d=>d.id===dayId));
+  const day=wk.days.find(d=>d.id===dayId);
+  const badgeMap={upper:'badge-upper',lower:'badge-lower',functional:'badge-func',deload:'badge-deload'};
+  const typeLabel={upper:'Tren Superior',lower:'Tren Inferior',functional:'Funcional',deload:'Deload'};
+  const done=countDone(dayId,day.exercises);
+
+  let html=`
+    <div style="margin-bottom:14px;">
+      <span class="badge ${badgeMap[day.type]||'badge-upper'}">${typeLabel[day.type]||''}</span>
+      <h2 style="font-size:20px;font-weight:800;margin:8px 0 2px;">${day.name} — ${wk.name}</h2>
+      <p style="font-size:13px;color:var(--muted);">${day.sub} · ${day.dur}</p>
+    </div>
+    <div class="done-bar" style="justify-content:space-between;">
+      <span id="wProgressLabel">${done} de ${day.exercises.length} ejercicios completos</span>
+      <span style="font-size:12px;">${Math.round(done/day.exercises.length*100)}%</span>
+    </div>
+    <div class="progress-wrap" style="margin-bottom:14px;">
+      <div class="progress-fill" id="wProgressFill" style="width:${Math.round(done/day.exercises.length*100)}%"></div>
+    </div>
+    <div class="tip-box" style="margin-bottom:13px;"><h4>🔥 Antes de empezar</h4><p>5–8 min de calentamiento en bicicleta o caminata. Tocá los círculos para marcar cada serie. Usá ⏱ para el cronómetro de descanso.</p></div>`;
+
+  // Group into supersets (pairs)
+  const exs=day.exercises;
+  for(let i=0;i<exs.length;i+=2){
+    const group=exs.slice(i,i+2);
+    const label=String.fromCharCode(65+Math.floor(i/2));
+    const restSecs=parseInt(group[0].rest)||60;
+    html+=`<div class="superset-block">
+      <div class="superset-label">💪 Superset ${label}<div class="superset-label-line"></div></div>`;
+    group.forEach((ex,gi)=>{
+      const idx=i+gi;
+      const dots=Array.from({length:ex.sets},(_,s)=>{
+        const d=isSetDone(dayId,idx,s);
+        return `<div class="set-dot${d?' done':''}" onclick="toggleSet('${dayId}',${idx},${s},${ex.sets},this)">${d?'✓':(s+1)}</div>`;
+      }).join('');
+      const legTag=ex.isLeg?`<span class="leg-tag">🦵 PIERNA</span>`:'';
+      html+=`<div class="superset-ex" onclick="openExercise('${dayId}',${idx})">
+        <div class="superset-ex-top">
+          <div class="superset-ex-num${ex.isLeg?' leg':''}">${idx+1}</div>
+          <div class="superset-ex-info">
+            <div class="superset-ex-name">${ex.name}${legTag}</div>
+            <div class="superset-ex-meta">${ex.reps} · ${ex.sets} series · Descanso: ${ex.rest} seg</div>
+          </div>
+        </div>
+        <div class="set-dots">${dots}</div>
+      </div>`;
+    });
+    html+=`<div class="rest-row">
+      <span class="rest-label">⏸ Descansá ${group[0].rest} seg entre supersets</span>
+      <button class="timer-btn" onclick="startTimer(${restSecs})">⏱ Iniciar</button>
+    </div></div>`;
+  }
+
+  html+=`<button class="start-btn" style="margin-top:4px;" onclick="showScreen('stretch')">Ver Estiramientos Post-Sesión 🧘</button>`;
+  document.getElementById('workoutContent').innerHTML=html;
+  showScreen('workout');
+}
+
+// ==================== EXERCISE MODAL ====================
+const muscleColors={
+  'Dorsal':'#5B4FD9','Lats':'#5B4FD9','Romboides':'#3730A3','Trapecio':'#3730A3','Trapecios':'#3730A3',
+  'Pectoral':'#E91E63','Pecho':'#E91E63',
+  'Bíceps':'#00ACC1','Braquiorradial':'#0097A7',
+  'Tríceps':'#FB8C00',
+  'Deltoides':'#43A047','Deltoides lateral':'#43A047','Deltoides anterior':'#388E3C','Deltoides posterior':'#2E7D32',
+  'Manguito rotador':'#66BB6A','Manguito':'#66BB6A',
+  'Core':'#607D8B','Transverso':'#546E7A','Transverso abdominal':'#546E7A','Estabilizadores':'#607D8B',
+  'Oblicuos':'#455A64','Core rotacional':'#455A64','Core lateral':'#455A64','Core lumbar':'#546E7A',
+  'Erectores espinales':'#37474F','Estabilizadores espinales':'#37474F',
+  'Cuádriceps':'#FF5722','Isquiotibiales':'#9C27B0','Glúteos':'#E91E63','Glúteo medio':'#AD1457',
+  'Gemelos':'#00BCD4','Sóleo':'#0097A7','Pantorrillas':'#00BCD4',
+  'Abductores':'#FF9800','Glúteo medio':'#F57C00','Aductores':'#F06292','Muslo interno':'#F06292',
+  'Cadera':'#FF7043','Flexores':'#FF8A65','Psoas':'#FF7043',
+  'Columna':'#78909C','Columna torácica':'#90A4AE',
+  'Diafragma':'#80DEEA'
+};
+
+function getMoveType(muscles){
+  const m=muscles.join(' ').toLowerCase();
+  if(m.includes('cuádricep')||m.includes('isquio')||m.includes('glúteo')||m.includes('gemelo')||m.includes('sóleo')||m.includes('abductor')||m.includes('aductor')||m.includes('cadera')||m.includes('pantorr'))
+    return{icon:'🦵',name:'PIERNAS',sub:'Ejercicio de tren inferior'};
+  if(m.includes('dorsal')||m.includes('romboid')||m.includes('trapec')||m.includes('bícep'))
+    return{icon:'🔙',name:'TIRÓN',sub:'Jalando hacia el cuerpo'};
+  if(m.includes('pectoral')||m.includes('pecho'))
+    return{icon:'💪',name:'EMPUJE HORIZONTAL',sub:'Empujando hacia adelante'};
+  if(m.includes('deltoid')||m.includes('trícep')||m.includes('hombro'))
+    return{icon:'🏋️',name:'EMPUJE / HOMBROS',sub:'Empujando hacia arriba'};
+  if(m.includes('core')||m.includes('transverso')||m.includes('oblicuo')||m.includes('estabiliz'))
+    return{icon:'⚡',name:'CORE',sub:'Estabilización y fuerza central'};
+  return{icon:'🏃',name:'FUNCIONAL',sub:'Movimiento complejo'};
+}
+
+function bodyDiagram(muscles){
+  const active=new Set();
+  muscles.forEach(m=>{
+    const ml=m.toLowerCase();
+    if(ml.includes('dorsal')||ml.includes('lat')||ml.includes('romboid')||ml.includes('trapec')||ml.includes('erector')||ml.includes('lumbar'))active.add('back_upper');
+    if(ml.includes('glúte'))active.add('back_glutes');
+    if(ml.includes('isquio')||ml.includes('hamstring'))active.add('back_hamstrings');
+    if(ml.includes('pectoral')||ml.includes('pecho'))active.add('front_chest');
+    if(ml.includes('bícep'))active.add('front_biceps');
+    if(ml.includes('trícep'))active.add('back_triceps');
+    if(ml.includes('deltoid')||ml.includes('hombro'))active.add('front_shoulders');
+    if(ml.includes('cuádricep'))active.add('front_quads');
+    if(ml.includes('gemelo')||ml.includes('sóleo')||ml.includes('pantorr'))active.add('both_calves');
+    if(ml.includes('core')||ml.includes('transverso')||ml.includes('oblicuo')||ml.includes('estabiliz')||ml.includes('abdomen'))active.add('front_abs');
+    if(ml.includes('abductor'))active.add('front_hips');
+    if(ml.includes('aductor')||ml.includes('interno'))active.add('front_inner');
+    if(ml.includes('cadera')||ml.includes('psoas')||ml.includes('flexor'))active.add('front_hip_flexor');
+  });
+  const c='#5B4FD9', g='#E5E7EB';
+  const fa=n=>active.has(n)?c:g;
+  function svg(front){
+    const chest=front?fa('front_chest'):g;
+    const shoulderL=front?fa('front_shoulders'):g;
+    const shoulderR=shoulderL;
+    const bicL=front?fa('front_biceps'):g;
+    const bicR=bicL;
+    const tricL=front?g:fa('back_triceps');
+    const tricR=tricL;
+    const abs=front?fa('front_abs'):g;
+    const backU=front?g:fa('back_upper');
+    const glutes=front?g:fa('back_glutes');
+    const quadL=front?fa('front_quads'):g;
+    const quadR=quadL;
+    const hamL=front?g:fa('back_hamstrings');
+    const hamR=hamL;
+    const calfL=fa('both_calves');
+    const calfR=calfL;
+    const hips=front?fa('front_hips'):g;
+    const inner=front?fa('front_inner'):g;
+    return `<svg viewBox="0 0 120 260" width="110" height="210" xmlns="http://www.w3.org/2000/svg">
+      <!-- Head -->
+      <circle cx="60" cy="18" r="14" fill="${g}" stroke="#ccc" stroke-width="1.5"/>
+      <!-- Neck -->
+      <rect x="55" y="31" width="10" height="9" rx="3" fill="${g}"/>
+      <!-- Left shoulder -->
+      <ellipse cx="35" cy="52" rx="14" ry="9" fill="${shoulderL}"/>
+      <!-- Right shoulder -->
+      <ellipse cx="85" cy="52" rx="14" ry="9" fill="${shoulderR}"/>
+      <!-- Chest / Back Upper -->
+      <rect x="40" y="45" width="40" height="42" rx="7" fill="${front?chest:backU}"/>
+      <!-- Left Bicep/Tricep -->
+      <rect x="19" y="43" width="15" height="46" rx="7" fill="${front?bicL:tricL}"/>
+      <!-- Right Bicep/Tricep -->
+      <rect x="86" y="43" width="15" height="46" rx="7" fill="${front?bicR:tricR}"/>
+      <!-- Left Forearm -->
+      <rect x="16" y="91" width="12" height="36" rx="5" fill="${g}"/>
+      <!-- Right Forearm -->
+      <rect x="92" y="91" width="12" height="36" rx="5" fill="${g}"/>
+      <!-- Abs / Lower back -->
+      <rect x="42" y="88" width="36" height="40" rx="5" fill="${front?abs:g}"/>
+      <!-- Hips abductors -->
+      <rect x="29" y="88" width="15" height="40" rx="5" fill="${front?hips:g}"/>
+      <rect x="76" y="88" width="15" height="40" rx="5" fill="${front?hips:g}"/>
+      <!-- Inner thigh -->
+      <rect x="56" y="130" width="8" height="52" rx="4" fill="${front?inner:g}"/>
+      <!-- Hip flexors -->
+      <rect x="43" y="127" width="34" height="15" rx="5" fill="${front?fa('front_hip_flexor'):g}"/>
+      <!-- Glutes -->
+      <rect x="40" y="127" width="18" height="30" rx="8" fill="${front?g:glutes}"/>
+      <rect x="62" y="127" width="18" height="30" rx="8" fill="${front?g:glutes}"/>
+      <!-- Left Quad/Hamstring -->
+      <rect x="40" y="142" width="18" height="58" rx="8" fill="${front?quadL:hamL}"/>
+      <!-- Right Quad/Hamstring -->
+      <rect x="62" y="142" width="18" height="58" rx="8" fill="${front?quadR:hamR}"/>
+      <!-- Left Calf -->
+      <rect x="42" y="203" width="14" height="42" rx="6" fill="${calfL}"/>
+      <!-- Right Calf -->
+      <rect x="64" y="203" width="14" height="42" rx="6" fill="${calfR}"/>
+    </svg>`;
+  }
+  return `<div class="mv-body">
+    <div class="mv-diagram">${svg(true)}<div class="mv-diagram-label">Frente</div></div>
+    <div class="mv-diagram">${svg(false)}<div class="mv-diagram-label">Espalda</div></div>
+  </div>`;
+}
+
+// ==================== EXERCISE ANIMATIONS ====================
+
+
+
+function openExercise(dayId,idx){
+  const wk=DATA.weeks.find(w=>w.days.find(d=>d.id===dayId));
+  const day=wk.days.find(d=>d.id===dayId);
+  const ex=day.exercises[idx];
+  const dots=[1,2,3].map(d=>`<div style="width:10px;height:10px;border-radius:50%;background:${ex.diff>=d?'var(--primary)':'var(--border)'}"></div>`).join('');
+  const modClass=ex.modType==='good'?'good':'';
+  const mv=getMoveType(ex.muscles);
+  const html=`
+    <h2 class="modal-title">${ex.name}${ex.isLeg?'<span style="font-size:13px;background:#FCE4EC;color:var(--secondary);padding:3px 9px;border-radius:10px;margin-left:8px;font-weight:700;vertical-align:middle;">🦵 Pierna</span>':''}</h2>
+    <div class="modal-muscles">${ex.muscles.map(m=>`<span class="muscle-tag" style="background:${muscleColors[m]||'#607D8B'}">${m}</span>`).join('')}</div>
+    <div class="muscle-visual-wrap">
+      <div class="mv-header">Músculos trabajados</div>
+      <div class="mv-move-type">
+        <div class="mv-move-icon">${mv.icon}</div>
+        <div class="mv-move-info"><div class="mv-move-name">${mv.name}</div><div class="mv-move-sub">${mv.sub}</div></div>
+      </div>
+    </div>
+    <div class="sets-row">
+      <div class="set-box"><div class="set-val">${ex.sets}</div><div class="set-lbl">Series</div></div>
+      <div class="set-box"><div class="set-val">${ex.reps}</div><div class="set-lbl">Reps</div></div>
+      <div class="set-box"><div class="set-val">${ex.rest}</div><div class="set-lbl">Descanso (s)</div></div>
+    </div>
+    <div class="modal-section"><h4>📖 Descripción</h4><p>${ex.desc}</p></div>
+    <div class="modal-section"><h4>✅ Consejos técnicos</h4><ul>${ex.tips.map(t=>`<li>${t}</li>`).join('')}</ul></div>
+    ${ex.mod?`<div class="mod-box ${modClass}">${ex.mod}</div>`:''}
+    <div class="modal-section" style="margin-top:14px;"><h4>Dificultad</h4>
+      <div style="display:flex;gap:5px;align-items:center;margin-top:5px;">${dots}<span style="font-size:12px;color:var(--muted);margin-left:6px;">${ex.diff===1?'Principiante':ex.diff===2?'Intermedio':'Avanzado'}</span></div>
+    </div>`;
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(e){if(e.target===document.getElementById('modal'))closeModalBtn();}
+function closeModalBtn(){document.getElementById('modal').classList.remove('show');}
+
+// ==================== STRETCHES ====================
+function buildStretchCats(){
+  const cats=[{id:'todo',label:'Todos'},{id:'piernas',label:'🦵 Piernas'},{id:'cadera',label:'🍑 Cadera'},{id:'columna',label:'🔄 Columna'},{id:'tren-superior',label:'💪 Superior'}];
+  let html='';
+  cats.forEach(c=>{html+=`<button class="cat-btn${c.id===currentStretchCat?' active':''}" onclick="filterStretches('${c.id}')">${c.label}</button>`;});
+  document.getElementById('stretchCats').innerHTML=html;
+}
+function filterStretches(cat){currentStretchCat=cat;buildStretchCats();renderStretches(cat);}
+function renderStretches(cat){
+  const list=cat==='todo'?DATA.stretches:DATA.stretches.filter(s=>s.cat===cat);
+  let html='';
+  list.forEach(s=>{
+    html+=`<div class="stretch-card">
+      <div class="stretch-head"><div class="stretch-icon">${s.emoji}</div><div class="stretch-info"><div class="stretch-name">${s.name}</div><span class="stretch-dur">⏱ ${s.dur}</span></div></div>
+      <p class="stretch-body">${s.desc}</p>
+      <ul class="stretch-steps">${s.steps.map(st=>`<li>${st}</li>`).join('')}</ul>
+      ${s.mod?`<div class="stretch-mod ${s.modType==='warn'?'warn':''}">${s.mod}</div>`:''}
+    </div>`;
+  });
+  document.getElementById('stretchList').innerHTML=html;
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded',()=>{
+  buildWeekTabs();
+  renderPlanWeek(currentWeek);
+  renderHomeWeekCards();
+  renderStretches('todo');
+  buildStretchCats();
+});
+</script>
+</body>
+</html>
